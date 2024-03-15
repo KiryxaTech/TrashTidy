@@ -29,7 +29,7 @@ class Tray(Icon):
         
     # Method to set the title
     def set_title(self, conv_size: str, percent_size: int|str) -> None:
-        self.title = f'TrashTidy   |   {conv_size}   |   {percent_size}'
+        self.title = f'TrashTidy   |   {conv_size}   |   {percent_size}%'
     
     # Method to run the application in a new thread
     def run_to_new_thread(self):

@@ -1,7 +1,9 @@
+import tkinter as tk
 from pathlib import Path
+from threading import Thread
 
 import customtkinter as ctk
-from customtkinter import CTkFrame, CTkLabel, CTkButton
+from customtkinter import CTkFrame, CTkLabel, CTkButton, CTkSwitch
 from PIL import Image
 
 
@@ -58,6 +60,20 @@ class Page(CTkFrame):
         cls._pages.append(page)
 
 
+class WidgetFrame(CTkFrame):
+    def __init__(self, master: CTkFrame, text: str, height: int = 50):
+        super().__init__(master=master, width=530, height=height, corner_radius=7)
+        
+        self.text = CTkLabel(
+            master=self,
+            width=0,
+            height=20,
+            text=text,
+            font=('Segoe UI Bold', 16)
+        )
+        self.text.place(x=10, y=18)
+
+
 class NavigationButton(CTkButton):
     """
     NavigationButton class represents a button in the navigation menu.
@@ -75,13 +91,13 @@ class NavigationButton(CTkButton):
                          hover_color='#323232',
                          image=image,
                          text='',
-                         command=self.command)
+                         command=self.place_page_and_button_select)
         
         NavigationButton.add_button(self)
         
-    def command(self):
+    def place_page_and_button_select(self):
         self.place_linked_page()
-        self.set_button_color()
+        self.button_select()
     
     def place_linked_page(self):
         for page in Page.get_pages():
@@ -89,7 +105,7 @@ class NavigationButton(CTkButton):
         
         self.linked_page.place(x=50, y=0)
         
-    def set_button_color(self):
+    def button_select(self):
         for btn in NavigationButton.get_buttons():
             btn.configure(fg_color='transparent')
         self.configure(fg_color='#323232')
@@ -154,12 +170,21 @@ class Window(ctk.CTk):
         
         # Settings objects
         self.settings_frame = Page(self, page_name='Bin settings')
+        
+        self.cleanup_frame = WidgetFrame(self, text='Schedule cleanup')
+        self.cleanup_switch_var = tk.Variable(value=1)
+        self.cleanup_switch = CTkSwitch(self.cleanup_frame,
+                                        width=60,
+                                        height=20,
+                                        variable=self.cleanup_switch_var)
+        self.cleanup_switch.place(x=520, y=18)
+        
         self.settings_image = create_ctkimage(r'icons\recycle-bin.png')
         self.settings_button = NavigationButton(master=self,
                                                 linked_page=self.settings_frame,
                                                 image=self.settings_image)
         
-        self.settings_button.place_linked_page()
+        self.settings_button.place_page_and_button_select()
         
         # Themes objects
         self.themes_frame = Page(self, page_name='Themes')
@@ -174,9 +199,3 @@ class Window(ctk.CTk):
         
         # Place settings frame and navigation menu in the window
         self.navigation_menu.place(x=0, y=0)
-        
-        # Start the application
-        self.mainloop()
-
-            
-Window()
